@@ -162,7 +162,8 @@ $(function () {
             $("#search").autocomplete({
                 source: optArray,
                 minLength: 2,
-                position : {my: "left bottom", at : "left top", collision: "none"}
+                position : {
+                    offset: '25 4' }
             });
         });
 
