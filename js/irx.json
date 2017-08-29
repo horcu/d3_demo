@@ -1,0 +1,169 @@
+{
+    "nodes": [
+        {
+            "name": "bad organization",
+            "id": "4EA15949298951CBE0532C012E0A2FF4",
+            "siteID": "4EA15944398951CBE0532C031E0A2FF4",
+            "group": 6
+        },
+    {
+        "name": "group.png|ITEM|DOC|NO_SHOW",
+        "id": "4EA15949298951CBE0532C031E0A2FF4",
+        "siteID": "4EA15949298951CBE0532C031E0A2FF4",
+        "group": 3
+    },
+    {
+        "name": "crime.JPG|ITEM|DOC|NO_SHOW",
+        "id": "4F1EAB39C509676DE0532C031E0AB153",
+        "siteID": "4F1EAB39C509676DE0532C031E0AB153",
+        "group": 3
+    },
+    {
+        "name": "pr-logo1.png|ITEM|DOC|NO_SHOW",
+        "id": "4FA6D636B22C7575E0532A041E0A1727",
+        "siteID": "4FA6D636B22C7575E0532A041E0A1727",
+        "group": 0
+    },
+    {
+        "name": "Khasru  Rahman",
+        "id": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "siteID": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "group": 4
+    },
+    {
+        "name": "gnip_0.svg|ITEM|DOC|NO_SHOW",
+        "id": "4E13C91AB0FE2EB3E0532C031E0A35A0",
+        "siteID": "4E13C91AB0FE2EB3E0532C031E0A35A0",
+        "group": 0
+    },
+    {
+        "name": "pr-logo2.png|ITEM|DOC|NO_SHOW",
+        "id": "4FA6E29E293978F2E0532A041E0AB60A",
+        "siteID": "4FA6E29E293978F2E0532A041E0AB60A",
+        "group": 0
+    },
+    {
+        "name": "group1.png|ITEM|DOC|NO_SHOW",
+        "id": "4E9FBFDD64490B94E0532C031E0A0050",
+        "siteID": "4E9FBFDD64490B94E0532C031E0A0050",
+        "group": 0
+    },
+    {
+        "name": "pr-logo.png|ITEM|DOC|NO_SHOW",
+        "id": "4EA15D51755860D0E0532C031E0A2427",
+        "siteID": "4EA15D51755860D0E0532C031E0A2427",
+        "group": 3
+    }
+],
+    "links": [
+        {
+            "xxx": 3,
+            "yyy": 5,
+            "source": "4FA6E29E293978F2E0532A041E0AB60A",
+            "target": "4EA15D51755860D0E0532C031E0A2427",
+            "value": 5,
+            "id": "4FA6D636B22C7575E0532A041E0A1727",
+            "dbID": "4FA6E2ABFBB77916E0532A041E0A47DD",
+            "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+            "isLoop": "false",
+            "type": "third"
+        },
+    {
+        "xxx": 3,
+        "yyy": 5,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4FA6E29E293978F2E0532A041E0AB60A",
+        "value": 5,
+        "id": "4FA6D636B22C7575E0532A041E0A1727",
+        "dbID": "4FA6E2ABFBB77916E0532A041E0A47DD",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "connection"
+    },
+    {
+        "xxx": 3,
+        "yyy": 7,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4EA15D51755860D0E0532C031E0A2427",
+        "value": 5,
+        "id": "4EA15D6261DF6138E0532C031E0ACD46",
+        "dbID": "4EA15D6261DF6138E0532C031E0ACD46",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "bad"
+    },
+    {
+        "xxx": 3,
+        "yyy": 4,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4E13C91AB0FE2EB3E0532C031E0A35A0",
+        "value": 5,
+        "id": "4E13C92ADD572EDBE0532C031E0A5FE9",
+        "dbID": "4E13C92ADD572EDBE0532C031E0A5FE9",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "connection"
+    },
+    {
+        "xxx": 3,
+        "yyy": 1,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4F1EAB39C509676DE0532C031E0AB153",
+        "value": 5,
+        "id": "4F1EAB4BB19C67B9E0532C031E0AD998",
+        "dbID": "4F1EAB4BB19C67B9E0532C031E0AD998",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "bad"
+    },
+    {
+        "xxx": 3,
+        "yyy": 2,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4FA6D636B22C7575E0532A041E0A1727",
+        "value": 5,
+        "id": "4FA6D64554B87599E0532A041E0A77D0",
+        "dbID": "4FA6D64554B87599E0532A041E0A77D0",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "connection"
+    },
+    {
+        "xxx": 3,
+        "yyy": 6,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4E9FBFDD64490B94E0532C031E0A0050",
+        "value": 5,
+        "id": "4E9FBFEE23AC0C0AE0532C031E0A81CA",
+        "dbID": "4E9FBFEE23AC0C0AE0532C031E0A81CA",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "connection"
+    },
+    {
+        "xxx": 3,
+        "yyy": 0,
+        "source": "4E13B5DCD2852CBEE0532C031E0ADFFD",
+        "target": "4EA15949298951CBE0532C031E0A2FF4",
+        "value": 5,
+        "id": "4EA1595918F75218E0532C031E0A5E87",
+        "dbID": "4EA1595918F75218E0532C031E0A5E87",
+        "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+        "isLoop": "false",
+        "type": "bad"
+    },
+
+        {
+            "xxx": 3,
+            "yyy": 0,
+            "source": "4FA6D636B22C7575E0532A041E0A1727",
+            "target": "4EA15949298951CBE0532C012E0A2FF4",
+            "value": 5,
+            "id": "4EA1595528F75218E0532C031E0A5E87",
+            "dbID": "4EA1595918F75218E0532C031E0A5E87",
+            "type": "4055EB3BB3F618E6E0532A041E0A18F0",
+            "isLoop": "false",
+            "type": "third"
+        }
+]
+}
