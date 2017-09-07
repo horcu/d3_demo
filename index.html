@@ -1,34 +1,99 @@
 <!DOCTYPE html>
-<script src="js/vendor/jquery-2.2.3.min.js"></script>
-<link rel="stylesheet" href="css/main.css">
+
 <meta charset="utf-8">
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css" />
-<section>
-<br />
-<div id="search-box" class="ui-widget">
-    <input type="text" id="search" placeholder="search nodes">
-    <button type="button" value="search" id="search-btn"> search </button>
-</div>
-<svg width="1660" height="600"></svg>
+<link  rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
 
-<br/>
-<div id="btn-container"></div>
+<link rel="stylesheet" href="css/main.css">
+<script type='text/javascript' src='http://d3js.org/d3.v4.min.js'></script>
+<script type="text/javascript" src="js/d3-tip.js"></script>
+<script src="https://d3js.org/d3-transition.v1.min.js"></script>
+<body>
+<header>
+    <div id="search-box" class="ui-widget fleft">
+        <input type="text" id="search" placeholder="search nodes">
+        <button type="button" value="search" id="search-btn"> search </button>
+    </div>
 
-<br/>
-<br />
-<button type="button" value="flush" id="flush"> flush local </button>
 
+</header>
+    <aside class="main-sidebar">
+        <section id="controls">
+            <ul class="controls-list">
+                <li>
+                    <span id="cluster-btn" class="control">cluster</span>
+                </li>
+                <li>
+                    <span id="flush-btn" class="control">flush local</span>
+                </li>
+                <li>
+                    <span id="labels-btn" class="control">toggle labels</span>
+                </li>
+                <li>
+
+                </li>
+            </ul>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">depth
+                    <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">parent</a></li>
+                    <li><a href="#">child</a></li>
+                    <li><a href="#">grandchild</a></li>
+                </ul>
+            </div>
+            <span>min age
+            <div class="range">
+                <input id="min-age" type="range" placeholder="min age" name="range" min="5" max="45" value="7" onchange="range.value=value">
+                <output id="range">7</output>
+            </div>
+                </span>
+        </section>
+
+    </aside>
+
+    <section id="svg-container" class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <svg class="well" width="960" height="500"></svg>
+            </div>
+        </div>
+    </section>
 <ul id="context-menu" class="menu">
     <li class="svg-ctext" id="ctext-edit">Edit</li>
     <li class="svg-ctext" id="ctext-exp">Expand</li>
+    <li class="svg-ctext" id="ctext-coll">Collapse</li>
 </ul>
-</section>
+<footer>
+    <!--<div id="btn-container"></div>-->
+    <section>
+        <div id="legend-outer">
+            <div id="legend-inner">
+                <ul>
+                    <li><span id="level-1">brother / sister</span></li>
+                    <li><span id="level-2">father / mother</span></li>
+                    <li><span id="level-3">boyfriend / girlfriend</span></li>
+                    <li><span id="level-4">cousin</span></li>
+                    <li><span id="level-5">daughter / son</span></li>
+                    <li><span id="level-6">stepson / stepdaughter</span></li>
+                    <li><span id="level-7">friend</span></li>
+                    <li><span id="level-8">nephew / niece</span></li>
+                    <li><span id="level-9">self</span></li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+</footer>
+</body>
 
 <script type='text/javascript' src="js/vendor/jquery-2.2.3.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
 <script type='text/javascript' src="js/vendor/jquery-ui.min.js"> </script>
-<script type='text/javascript' src='http://d3js.org/d3.v4.min.js'></script>
-<script src="https://d3js.org/d3-transition.v1.min.js"></script>
 <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
 <script type='text/javascript' src="./js/d3fire.js"></script>
-<script type='text/javascript' src="http://bost.ocks.org/mike/fisheye/fisheye.js?0.0.3"> </script>
 <script src="js/main.js"></script>
