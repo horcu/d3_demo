@@ -81,6 +81,8 @@ labelsCheckbox.on('click', function () {
 d3.json("splc_kkk_depth.json", function (error, json) {
     if (error) throw error;
 
+    buildTree(json,2);
+
     root = json;
     initRoot(root);
     saveLocal("root", root);
@@ -91,6 +93,68 @@ d3.json("splc_kkk_depth.json", function (error, json) {
     updateNodeOptionsArray(current);
     update(current);
 });
+
+function Branch(depth, data, children){
+    this.depth = depth;
+    this.nodes = data.nodes;
+    this.links = data.links;
+    this.children = children || []
+}
+
+function buildTree(data, depth){
+    var parentLevel = depth -1;
+
+    if(parentLevel <= 0){
+        //root
+    }
+    var branchdata ,
+        branch = [] ,
+        lastChild = undefined;
+
+    for(var i = 0; i < depth ; i++){
+        branchdata = {};
+         branchdata.nodes = data.nodes.filter(function (node) {
+            return node.level === i + 1;
+        })
+         branchdata.links = data.links.filter(function (link) {
+            return link.level === i + 1;
+        })
+
+        var  branch = new Branch(i+1,branchdata, []);
+
+
+        if(lastChild)
+         lastChild.children = branch;
+
+        if(i < depth -1)
+        lastChild = branch;
+
+    }
+
+    //todo - every time children are requested they are found by level then removed from level and saved on the node
+    //todo - to find children first check node directly then level
+
+    //todo use flatten method to get all nodes at that level if not at the node and then filter
+    //todo - if chikdren received directly from node no need to filter !!!
+    //todo - eveytime the children are received savelocal gets called to save existing data.
+    //todo - network call is made secondary to localstorage.. it gets called but just after with a hash of local storage to test diff
+
+    // data.nodes.sort();
+    // data.nodes.forEach(function (node) {
+    //     var childLinks = data.links.filter(function (l) {
+    //         return l.sourceStr === node.id || l.targetStr === node.id;
+    //     })
+    //
+    //    var children = data.nodes.filter(function (t) {
+    //        return childLinks.some(function (a) {
+    //            return a.targetStr === t.id;
+    //        })
+    //    })
+    //     node.children = children;
+    // });
+
+    return lastChild;
+}
 
 function toggleLabels(on) {
     if(!on){
