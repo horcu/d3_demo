@@ -133,6 +133,7 @@ function buildTree(data, depth){
 
     //todo - every time children are requested they are found by level then removed from level and saved on the node
     //todo - to find children first check node directly then level
+    //todo - display one level at a time plus the focus from the parent level with the other nodes faded and the selected node emphasised
 
     //todo use flatten method to get all nodes at that level if not at the node and then filter
     //todo - if chikdren received directly from node no need to filter !!!
