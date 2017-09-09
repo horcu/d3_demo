@@ -5,13 +5,15 @@ var width = 1360,
     rootBranches = [],
     selectedNode = {},
     optArray = [],
-    searchBy ="name",
+    searchBy = "name",
     clusterOn = false,
-    labelsOn = getLocal('toggle-labels') || true,
-    linksOn = getLocal('toggle-links') || true,
+    searchBox = $("#search-input"),
+    labelsOn,
+    linksOn,
     linksCheckbox = $('#show-link-cb'),
 
     labelsCheckbox = $('#show-label-cb'),
+    randomColors = d3.scale.category20(),
     selectedNodeColor = "#3c10bd",
     colors = ["#dbdbdb", "#4d6cbd", "#b141bd", "#bd7338", "#28bd5c", "#bbbd0a", "#8c564b", "#3c10bd", "#bd0f34", "#5B6CBD", "#17becf"],
     colorMapping = {
@@ -20,6 +22,7 @@ var width = 1360,
         3: "#CE561A",
         4: "#b141bd",
     },
+
     popupInfoDiv = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0),
@@ -28,28 +31,30 @@ currentBranch.nodes = [];
 currentBranch.links = [];
 
 //set defaults
-linksCheckbox.attr('checked', linksOn ? 'checked' : true);
-labelsCheckbox.attr('checked', labelsOn ? 'checked' : true);
+labelsOn = getLocal('labelsOn')|| true;
+linksOn = getLocal('linksOn') || true;
+linksCheckbox.attr('checked', linksOn);
+labelsCheckbox.attr('checked', labelsOn);
 
 var force = d3.layout.force()
-    .gravity(.15)
-    .friction(.9)
-    .linkStrength(.2)
-    .charge(-455)
-    .size([width, height])
-    .on("tick", tick),
+        .gravity(.15)
+        //.friction(.9)
+        .linkStrength(.2)
+        .charge(-455)
+        .size([width, height])
+        .on("tick", tick),
 
     w = window.innerWidth - 20,
     h = window.innerHeight - 120,
 
     svg = d3.select("body").select("svg")
-    .attr("width", w)
-    .attr("height", h)
+        .attr("width", w)
+        .attr("height", h)
         .style('margin-top', '100px')
-    .attr("preserveAspectRatio", "xMinYMin meet")
-    //.attr("viewBox", "0 0 600 400")
-    //class to make it responsive
-    .classed("svg-content-responsive", true),
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        //.attr("viewBox", "0 0 600 400")
+        //class to make it responsive
+        .classed("svg-content-responsive", true),
     pattern_def = svg.append("defs"),
 
     link = svg.selectAll(".links"),
@@ -58,36 +63,35 @@ var force = d3.layout.force()
 
 
 linksCheckbox.on('click', function () {
-    if($(this).is(':checked')){
+    if ($(this).is(':checked')) {
         toggleLinks(true);
-        saveLocal('toggle-links', true);
-    }else{
+        saveLocal('linksOn', true);
+    } else {
         toggleLinks(false);
-        saveLocal('toggle-links', false);
+        saveLocal('linksOn', false);
     }
 });
 
 labelsCheckbox.on('click', function () {
-    if($(this).is(':checked')){
+    if ($(this).is(':checked')) {
         toggleLabels(true);
-        saveLocal('toggle-labels', true);
-    }else{
+        saveLocal('labelsOn', true);
+    } else {
         toggleLabels(false);
-        saveLocal('toggle-labels', false);
+        saveLocal('labelsOn', false);
     }
 
 });
 
-d3.json("splc_kkk_depth.json", function (error, json) {
+d3.json("trump.json", function (error, json) { //splc_kkk_depth.json
     if (error) throw error;
 
-    buildTree(json,2);
-
+    var tree = buildTree(json, 4);
     root = json;
     initRoot(root);
     saveLocal("root", root);
-    root.nodes = filterNode(root.nodes, 1);
-    root.links = filterNode(root.links, 1);
+    root.nodes = filterNodes(root.nodes, 1);
+    root.links = filterLinks(root.links, 1);
     var current = {nodes: root.nodes, links: root.links};
     saveLocal('current', current);
     updateNodeOptionsArray(current);
@@ -122,7 +126,6 @@ function buildTree(data, depth){
 
         var  branch = new Branch(i+1,branchdata, []);
 
-
         if(lastChild)
          lastChild.children = branch;
 
@@ -139,62 +142,55 @@ function buildTree(data, depth){
     //todo - if chikdren received directly from node no need to filter !!!
     //todo - eveytime the children are received savelocal gets called to save existing data.
     //todo - network call is made secondary to localstorage.. it gets called but just after with a hash of local storage to test diff
-
-    // data.nodes.sort();
-    // data.nodes.forEach(function (node) {
-    //     var childLinks = data.links.filter(function (l) {
-    //         return l.sourceStr === node.id || l.targetStr === node.id;
-    //     })
-    //
-    //    var children = data.nodes.filter(function (t) {
-    //        return childLinks.some(function (a) {
-    //            return a.targetStr === t.id;
-    //        })
-    //    })
-    //     node.children = children;
-    // });
-
+    //todo use the d3.nest feature to group nodes together maybe will help with finding children ????
     return lastChild;
 }
 
 function toggleLabels(on) {
-    if(!on){
+    if (!on) {
         label.filter(function (l) {
             return l;
         }).style("opacity", 0);
         labelsOn = false;
-    }else{
+        //force.restart();
+    } else {
         label.filter(function (l) {
             return l;
         }).style("opacity", 1);
         labelsOn = true;
+        //force.restart();
     }
 }
 
 function toggleLinks(on) {
-    if(!on){
+    if (!on) {
         link.filter(function (l) {
             return l;
         }).style("opacity", 0);
         linksOn = false;
-    }else{
+        //force.restart();
+    } else {
         link.filter(function (l) {
             return l;
         }).style("opacity", 1);
         linksOn = true;
+        //force.restart();
     }
 }
 
-function filterNode(nodes, level) {
+function filterNodes(nodes, level) {
     return nodes.filter(function (n) {
         return n.level === level;
     });
 }
 
-function filterLink(links, level) {
+function filterLinks(links, level) {
+    var bad = [];
     return links.filter(function (n) {
-        return n.level === level;
-    });
+        if(!n.level)
+            bad.push(n);
+        return  n.level === level;
+});
 }
 
 
@@ -207,136 +203,24 @@ function initRoot(r) {
     });
 }
 
-function filterJsonByLevel(data) {
 
-    data.nodes = data.nodes.filter(function (n) {
-        if (!nodefunc)
-            return data.nodes;
+function getChildren(node, links, nodes) {
+    var childNodes = [],
+        childLinks = [];
 
-        return nodefunc(data);
-    });
-
-    data.links = data.links.filter(function (l) {
-        if (!linkfunc)
-            return data.links;
-
-        return linkfunc(data);
-    });
-
-    return data;
-}
-
-function sortRootByLevel(data, rootLevel) {
-    var levelOnes = Enumerable.From(data.nodes)
-            .Where(function (x) {
-                return x.level === 1
-            })
-            // })
-            // .OrderBy(function (x) {
-            //     return x.user.screen_name
-            // })
-            .Select(function (x) {
-                return x
-            })
-            .ToArray(),
-
-        levelTwoData = Enumerable.From(data.nodes)
-            .Where(function (x) {
-                return x.level === 2
-            })
-            // })
-            // .OrderBy(function (x) {
-            //     return x.user.screen_name
-            // })
-            .Select(function (x) {
-                return x
-            })
-            .ToArray(),
-
-        levelOneLinks = Enumerable.From(data.links)
-            .Where(function (x) {
-                return x.level === 1
-            })
-            // })
-            // .OrderBy(function (x) {
-            //     return x.user.screen_name
-            // })
-            .Select(function (x) {
-                return x
-            })
-            .ToArray();
-
-    levelTwoLinks = Enumerable.From(data.links)
-        .Where(function (x) {
-            return x.level === 2
-        })
-        // })
-        // .OrderBy(function (x) {
-        //     return x.user.screen_name
-        // })
-        .Select(function (x) {
-            return x
-        })
-        .ToArray();
-
-    for (var r = 0; r < levelOnes.length; r++) {
-        var currentLevelOne = levelOnes[r];
-
-        if (currentLevelOne.id === "58102d5b-91ca-4038-e053-32041e0a5e4f") {
-            console.log("should have some children....")
-        }
-        var level2Associates = getChildren(levelTwoData, levelTwoLinks, currentLevelOne.id);
-
-        if (level2Associates.length > 0) {
-            if (!currentLevelOne.childen)
-                currentLevelOne.children = [];
-            currentLevelOne.children.push(level2Associates);
-        }
-    }
-
-    // for(var r= 0; r < levelOnes.length; r ++){
-    //     var current =  levelOnes[r];
-    //     current.children = [];
-    //    for(var s = 0; s < levelTwoLinks.length; s++){
-    //        var currentLink =  levelTwoLinks[s];
-    //        var levelTwoAssociates = getChildren(levelTwos, currentLink);
-    //        for(var l =0; l < levelTwoAssociates.length; l++){
-    //            currAssociate = levelTwoAssociates[l];
-    //            if(currAssociate.id === current.id){
-    //                current.children.push(currAssociate)
-    //            }
-    //        }
-    //    }
-    // }
-    saveLocal("struct", parsed);
-    return parsed;
-}
-
-function getChildren(levelTwoData, levelTwoLinks, id) {
-    var children = [];
-    levelTwoLinks = Enumerable.From(levelTwoLinks)
-        .Where(function (x) {
-            return x.sourceStr === id || x.targetStr === id;
-        })
-        // })
-        // .OrderBy(function (x) {
-        //     return x.user.screen_name
-        // })
-        .Select(function (x) {
-            return x
-        })
-        .ToArray();
-
-    for (var y = 0; y < levelTwoData.length; y++) {
-        for (var l = 0; l < levelTwoLinks.length; l++) {
-            if (levelTwoLinks[l].sourceStr === levelTwoData[y].id
-                ||
-                levelTwoLinks[l].targetStr === levelTwoData[y].id) {
-                children.push(levelTwoData[y]);
+    links.forEach(function (link) {
+        for (var i = 0; i < nodes.length; i++) {
+            var currentNode = nodes[i];
+            if (currentNode.id === link.sourceStr && link.targetStr === node.id) {
+                childNodes.push(currentNode);
+                childLinks.push(link);
             }
         }
-    }
-    return children;
+    });
+    return {
+        nodes: childNodes,
+        links: childLinks
+    };
 }
 
 function showInfoPopup(d) {
@@ -364,11 +248,17 @@ function update(data) {
     nodes.forEach(function (n) {
         n.collapsed = false;
     });
+
+    var bad = [];
     l.forEach(function (e) {
         var sourceNode = nodes.filter(function (n) {
+            if(!e.sourceStr || e.sourceStr === undefined)
+                bad.push(e);
                 return n.id === e.sourceStr;
             })[0],
             targetNode = nodes.filter(function (n) {
+                if(!e.targetStr || e.targetStr === undefined)
+                    bad.push(e);
                 return n.id === e.targetStr;
             })[0];
 
@@ -434,7 +324,7 @@ function update(data) {
         .style('stroke', getColorForNode)
         .attr('stroke-width', getStrokeWidthByNodeGroup)
         .attr("fill", getFillColorForNode)
-        .on("click", nodeClick)
+        //.on("click", nodeClick)
         .call(force.drag)
         .on("mouseover", function (d) {
 
@@ -453,7 +343,7 @@ function update(data) {
         .on("mouseout", function (d) {
             this.setAttribute("style", "stroke:" + getColorForNode(d) + ";");
 
-           hideInfoPopup(500, 0);
+            hideInfoPopup(500, 0);
             link.filter(function (l) {
                 return l.source.id === d.id || l.target.id === d.id;
             }).style("stroke", colors[0]);
@@ -471,35 +361,35 @@ function update(data) {
             d3.event.preventDefault();
         });
 
-    node.each(function(d,i){
-            if(!d.url){
-                return;
-            }
-            // append image pattern for each node
-            pattern_def.append("pattern")
-                .attr("id", "node-img")
-                .attr("patternUnits", "objectBoundingBox")
-                .attr({
-                    "width": "100%",
-                    "height": "100%"
-                })
-                .attr({
-                    "viewBox": "0 0 1 1"
-                })
-                .append("image")
-                .attr("xlink:href", d.url) //use xlink:href with image url
-                .attr({
-                    "x":0,
-                    "y":0,
-                    "width": "1",
-                    "height": "1",
-                    "preserveAspectRatio": "none"
-                })
+    node.each(function (d, i) {
+        if (!d.url) {
+            return;
+        }
+        // append image pattern for each node
+        pattern_def.append("pattern")
+            .attr("id", "node-img")
+            .attr("patternUnits", "objectBoundingBox")
+            .attr({
+                "width": "100%",
+                "height": "100%"
+            })
+            .attr({
+                "viewBox": "0 0 1 1"
+            })
+            .append("image")
+            .attr("xlink:href", d.url) //use xlink:href with image url
+            .attr({
+                "x": 0,
+                "y": 0,
+                "width": "1",
+                "height": "1",
+                "preserveAspectRatio": "none"
+            })
 
-            d3.select(this).attr("fill", "url(#node-img)")
-            // fill node with the image pattern
-            // if the image is fixed for every node, you can add the fill attribute in node settings
-        });
+        d3.select(this).attr("fill", "url(#node-img)")
+        // fill node with the image pattern
+        // if the image is fixed for every node, you can add the fill attribute in node settings
+    });
 
     label = svg.selectAll("nodes")
         .data(nodes)
@@ -515,61 +405,113 @@ function update(data) {
 
 }
 
-$(document).ready(function(e){
-    $('.search-panel .dropdown-menu').find('a').click(function(e) {
-        e.preventDefault();
-        var param = $(this).attr("href").replace("#","");
-        var concept = $(this).text();
-        $('.search-panel span#search_concept').text(concept);
-        $('.input-group #search_param').val(param);
-        searchBy = param;
 
-        $('#search-btn').on('click', function () {
-            var searchInput = $('#search-input'),
-                searchTerm = searchInput.val();
+$('.search-panel .dropdown-menu').find('a').click(function (e) {
+    e.preventDefault();
+    var param = $(this).attr("href").replace("#", "");
+    var concept = $(this).text();
+    $('.search-panel span#search_concept').text(concept);
+    $('.input-group #search_param').val(param);
+    searchBy = param;
 
-            if(searchTerm && searchTerm !== "")
+    $('#search-btn').on('click', function () {
+        var searchInput = $('#search-input'),
+            searchTerm = searchInput.val();
+
+        if (searchTerm && searchTerm !== "")
             runSearch(searchBy, searchTerm);
-        })
+    })
+});
+
+$(document).ready(function (e) {
+    $(searchBox).autocomplete({
+        source: optArray,
+        minLength: 3,
+        position: {
+            offset: '25 4'
+        },
+        _renderItem: function (ul, item) {
+            return $("<li>")
+                .attr("data-value", item.value)
+                .append(item.label)
+                .appendTo(ul);
+        },
+        _renderMenu: function (ul, items) {
+            var that = this;
+            $.each(items, function (index, item) {
+                that._renderItemData(ul, item);
+            });
+            $(ul).find("li:odd").addClass("odd");
+        },
+        create: function (event, ui) {
+            var test = ui;
+        },
+        open: function (event, ui) {
+            var test2 = ui;
+        },
+        response: function (event, ui) {
+            var test3 = ui;
+        },
+        search: function (event, ui) {
+            var test4 = ui;
+        }
     });
 
-    $("#search-input").autocomplete({
-        source: optArray,
-        minLength: 2,
-        position : {
-            offset: '25 4' }
-    });
+    searchBox.attr('autocomplete', 'on');
+
+    function drag_start(event) {
+        var style = window.getComputedStyle(event.target, null);
+        event.dataTransfer.setData("text/plain",
+            (parseInt(style.getPropertyValue("left"),10) - event.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - event.clientY));
+    }
+    function drag_over(event) {
+        event.preventDefault();
+        return false;
+    }
+    function drop(event) {
+        var offset = event.dataTransfer.getData("text/plain").split(',');
+        var dm = document.getElementById('settings-panel');
+        dm.style.left = (event.clientX + parseInt(offset[0],10)) + 'px';
+        dm.style.top = (event.clientY + parseInt(offset[1],10)) + 'px';
+        event.preventDefault();
+        return false;
+    }
+
+    var dm = document.getElementById('settings-panel');
+    dm.addEventListener('dragstart',drag_start,false);
+    document.body.addEventListener('dragover',drag_over,false);
+    document.body.addEventListener('drop',drop,false);
 });
 
 function updateNodeOptionsArray(graph) {
     optArray = [];
     for (var i = 0; i < graph.nodes.length - 1; i++) {
         var entry = graph.nodes[i].name;
-        if(optArray.indexOf(entry) === -1)
-            optArray.push(entry);
+        //if(optArray.indexOf(entry) === -1)
+        optArray.push(entry.toLowerCase());
     }
- //   optArray = optArray.sort();
+    //   optArray = optArray.sort();
 }
 
 function runSearch(searchBy, searchTerm) {
     var otherNodes = node.filter(function (d, i) {
-        return !d.name.toLowerCase().includes(searchTerm.toLowerCase());
-    }),
-        x =0,
-        y=0,
+            return !d.name.toLowerCase().includes(searchTerm.toLowerCase());
+        }),
+        x = 0,
+        y = 0,
         lbl = "",
         lvl = "",
-    foundNode = node.filter(function (d, i) {
-        if(d.name.toLowerCase().includes(searchTerm.toLowerCase())){
-            x = d.x;
-            y = d.y;
-            lvl = d.level;
-            lbl = d.name;
-            return true ;
-        }
-        return false;
-    }).style("stroke", linkColor)
-        .attr("r", expandNodeRadius);
+        foundNode = node.filter(function (d, i) {
+            if (d.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                x = d.x;
+                y = d.y;
+                lvl = d.level;
+                lbl = d.name;
+                return true;
+            }
+            return false;
+        }).style("stroke", linkColor)
+            .attr("r", expandNodeRadius);
 
     foundNode.x = x;
     foundNode.y = y;
@@ -590,15 +532,15 @@ function runSearch(searchBy, searchTerm) {
         .style("opacity", 1)
         .style("stroke", "#ffffff");
 
-    if(linksOn)
-    link.transition()
-        .duration(3000)
-        .style("opacity", 1);
+    if (linksOn)
+        link.transition()
+            .duration(3000)
+            .style("opacity", 1);
 
-    if(labelsOn)
-    label.transition()
-        .duration(3000)
-        .style("opacity", 1);
+    if (labelsOn)
+        label.transition()
+            .duration(3000)
+            .style("opacity", 1);
 }
 
 function setLaunchPoint(context) {
@@ -677,14 +619,17 @@ function expandNodeRadius(d) {
     return getNodeRadiusByNodeType(d) * 1.2;
 }
 
-function getFillColorForNode(d) {
+function getFillColorForNode(d, i) {
     if (!d) {
         return false;
     }
-    if(selectedNode.id === d.id)
+    if (selectedNode.id === d.id)
         return selectedNodeColor;
 
+    if(d.level)
     return colorMapping[d.level];
+
+    return randomColors(i);
 }
 
 function getColorForNode(d) {
@@ -773,8 +718,8 @@ function getLocal(key) {
 function saveLocal(key, item) {
     if (localStorage) {
         var stringified = JSON.stringify(item);
-            localStorage.setItem(key, stringified);
-            return true;
+        localStorage.setItem(key, stringified);
+        return true;
     }
     return false;
 }
@@ -785,18 +730,25 @@ function handleCollapse(n) {
         currentLinks = local.links;
 
     currentLinks = currentLinks.filter(function (cn) {
-        return cn.sourceStr !== n.id || cn.targetStr !== n.id; // && cn.level < n.level;
+        return cn.sourceStr !== n.id || cn.targetStr !== n.id;
     });
 
-    var nodesClone = jQuery.extend(true, {}, currentNodes);
-    currentLinks.forEach(function (l) {
-        for (var i = 0; i < nodesClone.length; i++) {
-            var currentNode = currentNodes[i];
-            if (currentNode.id === l.sourceStr || currentNode.id === l.targetStr) {
-                currentNodes.splice(currentNodes.indexOf(currentNode), 1);
-            }
-        }
-    });
+    //get the child nodes for the selected node
+    var children = getChildren(n, currentLinks, currentNodes);
+
+    //filter out the child nodes
+    for (var i = 0; i < children.nodes.length; i++) {
+        currentNodes = currentNodes.filter(function (nd) {
+            return nd.id !== children.nodes[i].id;
+        });
+    }
+    //filter out the child links
+    for (var i = 0; i < children.links.length; i++) {
+        currentLinks = currentLinks.filter(function (nd) {
+            return nd.id !== children.links[i].id;
+        });
+    }
+
     var newLocal = {
         links: currentLinks,
         nodes: currentNodes
@@ -811,8 +763,9 @@ function handleExpand(n) {
         level = n.level + 1;
     var local = getLocal('root'),
         current = getLocal('current'),
-        newLinks = filterLink(local.links, level),
-        newNodes = filterNode(local.nodes, level);
+        currentClone = jQuery.extend(true, {}, current);
+    newLinks = filterLinks(local.links, level),
+        newNodes = filterNodes(local.nodes, level);
 
     newLinks = newLinks.filter(function (l) {
         return l.sourceStr === sourceId || l.targetStr === sourceId;
@@ -835,39 +788,55 @@ function handleExpand(n) {
         current.nodes.push(n);
     });
 
+    if (objectsAreTheSame(current, currentClone))
+        return false;
+
     saveLocal('current', current);
     updateNodeOptionsArray(current);
     update(current);
 }
 
+function objectsAreTheSame(obj1, obj2) {
+    return JSON.stringify(obj1) === JSON.stringify(obj2);
+}
+
 function tick(e) {
-    if(linksOn)
-    link.attr("x1", function (d) {
-        return d.source.x;
-    })
-        .attr("y1", function (d) {
-            return d.source.y;
-        })
-        .attr("x2", function (d) {
-            return d.target.x;
-        })
-        .attr("y2", function (d) {
-            return d.target.y;
-        });
+        var maxAlpha = node[0].length > 2000 && link[0].length > 2000 ? 0.1 : 0.05;
+    if (linksOn){
+        if (e.alpha > maxAlpha ) {
+            link.attr("x1", function (d) {
+                return  d.source.x;
+            })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
+        }
+    }
 
-    node.attr("cx", function (d) {
-        return d.x;
-    })
-        .attr("cy", function (d) {
-            return d.y;
-        });
+    if (e.alpha > maxAlpha ) {
+        node.attr("cx", function (d) {
+            return d.x;
+        })
+            .attr("cy", function (d) {
+                return d.y;
+            });
+    }
 
-    if(labelsOn)
-    label.attr("x", function(d){
-        return d.x;
-    }).attr("y", function (d) {
-            return d.y - 10;
-    });
+    if (labelsOn){
+        if (e.alpha > maxAlpha ) {
+            label.attr("x", function (d) {
+                return d.x;
+            }).attr("y", function (d) {
+                return d.y - 10;
+            });
+        }
+    }
 }
 
 //Toggle children on click.
@@ -894,3 +863,5 @@ function flatten(root) {
     recurse(root);
     return nodes;
 }
+
+

@@ -2,8 +2,8 @@
 <meta charset="utf-8">
 <title>Force-Directed Graph</title>
 
-<link  rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"/>
 <link rel="stylesheet" href="css/main.css">
 <style>
 
@@ -23,28 +23,10 @@
 <body>
 
 <header>
-    <div class="navbar navbar-default">
+    <div>
         <div class="container-fluid">
             <div class="row">
-                <div id="table-div" class="col-xs-4 pull-left">
-                    <table class="table legend-tbl borderless">
-                        <tbody>
-                        <tr>
-                            <td class="legend-lbl legend-tbl-cell">focus</td>
-                            <td><div class="focus legend-tbl-cell"></div></td>
-                        </tr>
-                        <tr>
-                            <td class="legend-lbl legend-tbl-cell"><div>level 1</div></td>
-                            <td><div class="level-one legend-tbl-cell"></div></td>
-                        </tr>
-                        <tr>
-                            <td class="legend-lbl legend-tbl-cell"><div>Level 2</div></td>
-                            <td><div class="level-two legend-tbl-cell"></div></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="search" class="col-xs-4 pull-left">
+                <div id="search" >
                     <div class="input-group">
                         <div class="input-group-btn search-panel">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -62,83 +44,53 @@
                         <input type="hidden" name="search_param" value="all" id="search_param">
                         <input id="search-input" type="text" class="form-control" name="x" placeholder="Search term...">
                         <span class="input-group-btn">
-                    <button id="search-btn" class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                    <button id="search-btn" class="btn btn-default" type="button"><span
+                        class="glyphicon glyphicon-search"></span></button>
                 </span>
                     </div>
-                </div>
-                <div id="settings-div" class="col-xs-4 pull-right">
-                    <ul id="visib-list" class="nav navbar-nav">
-                        <ul class="nav navbar-nav">
-                            <li class="visib-filter dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings  <span class="glyphicon glyphicon-cog pull-right"></span></a>
-                                <ul class="dropdown-menu">
-                                    <!--<li><a href="#" class="small" data-value="grpby-levels" tabIndex="-1"><input type="checkbox" id="groupby-cb"/>&nbsp;&nbsp;&nbsp;Groupby level</a></li>-->
-                                    <!--<br>-->
-                                    <li><a href="#" class="small" data-value="show-links" tabIndex="-1"><input type="checkbox" id="show-link-cb"/>&nbsp;&nbsp;&nbsp;Show links</a></li>
-                                    <br>
-                                    <li><a href="#" class="small" data-value="show-labels" tabIndex="-1"><input type="checkbox" id="show-label-cb"/>&nbsp;&nbsp;&nbsp;Show labels</a></li>
-
-                                </ul>
-                            </li>
-                        </ul>
-                        <!--<li class="visib-filter">-->
-                        <!--<div class="[ form-group ]">-->
-                        <!--<input type="checkbox" name="fancy-checkbox-default" id="groupby-level-cb" autocomplete="off" />-->
-                        <!--<div class="[ btn-group ]">-->
-                        <!--<label for="groupby-level-cb" class="[ btn btn-default ]">-->
-                        <!--<span class="[ glyphicon glyphicon-ok ]"></span>-->
-                        <!--<span> </span>-->
-                        <!--</label>-->
-                        <!--<label for="groupby-level-cb" class="[ btn btn-default active ]">-->
-                        <!--Group By Level-->
-                        <!--</label>-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--</li>-->
-                        <!--<li class="visib-filter">-->
-                        <!--&lt;!&ndash;<span>toggle labels</span>&ndash;&gt;-->
-                        <!--<div class="[ form-group ]">-->
-                        <!--<input type="checkbox" name="fancy-checkbox-default" id="show-labels-cb" autocomplete="off" />-->
-                        <!--<div class="[ btn-group ]">-->
-                        <!--<label for="show-labels-cb" class="[ btn btn-default ]">-->
-                        <!--<span class="[ glyphicon glyphicon-ok ]"></span>-->
-                        <!--<span> </span>-->
-                        <!--</label>-->
-                        <!--<label for="show-labels-cb" class="[ btn btn-default active ]">-->
-                        <!--Show Labels-->
-                        <!--</label>-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--</li>-->
-                        <!--<li class="visib-filter">-->
-                        <!--&lt;!&ndash;<span>filter levels</span>&ndash;&gt;-->
-                        <!--<div class="[ form-group ]">-->
-                        <!--<input type="checkbox" name="fancy-checkbox-default" id="show-links-cb" autocomplete="off" />-->
-                        <!--<div class="[ btn-group ]">-->
-                        <!--<label for="show-links-cb" class="[ btn btn-default ]">-->
-                        <!--<span class="[ glyphicon glyphicon-ok ]"></span>-->
-                        <!--<span> </span>-->
-                        <!--</label>-->
-                        <!--<label for="show-links-cb" class="[ btn btn-default active ]">-->
-                        <!--Show Links-->
-                        <!--</label>-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--</li>-->
-                    </ul>
-
-
                 </div>
             </div>
         </div>
     </div>
 </header>
 <br>
-<section>
-    <div class="container">
-        <svg></svg>
+
+<div>
+    <aside draggable="true" id="legend-panel" class="panel panel-info">
+        <div class="panel-heading">Legend <span
+            class="glyphicon glyphicon-cog pull-right"></span></div>
+            <div class="legend-ul">
+               <div class="legend-color-box focus">focus</div>
+               <div class="legend-color-box level-one">level 1</div>
+               <div class="legend-color-box level-two">level 2</div>
+            </div>
+    </aside>
+
+    <aside draggable="true" id="settings-panel" class="panel panel-info">
+            <ul class="nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <span
+                        class="glyphicon glyphicon-cog pull-right"></span></a>
+                    <ul class="dropdown-menu">
+                        <!--<li><a href="#" class="small" data-value="grpby-levels" tabIndex="-1"><input type="checkbox" id="groupby-cb"/>&nbsp;&nbsp;&nbsp;Groupby level</a></li>-->
+                        <!--<br>-->
+                        <li><a href="#" class="small" data-value="show-links" tabIndex="-1"><input
+                            type="checkbox" id="show-link-cb"/>&nbsp;&nbsp;&nbsp;Show links</a></li>
+                        <br>
+                        <li><a href="#" class="small" data-value="show-labels" tabIndex="-1"><input
+                            type="checkbox" id="show-label-cb"/>&nbsp;&nbsp;&nbsp;Show labels</a></li>
+
+                    </ul>
+                </li>
+            </ul>
+    </aside>
+
+    <div class="row">
+        <div class="container">
+            <svg></svg>
+        </div>
     </div>
-</section>
+</div>
 
 <ul id="context-menu" class="menu">
     <li class="svg-ctext" id="ctext-edit">Edit</li>
@@ -149,9 +101,9 @@
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script type='text/javascript' src='http://d3js.org/d3.v3.min.js'></script>
 <script type="text/javascript" src="main-collapse.js"></script>
-<script type="text/javascript" src="js/vendor/linq.min.js" ></script>
+<script type="text/javascript" src="js/vendor/linq.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
-<script type='text/javascript' src="js/vendor/jquery-ui.min.js"> </script>
+<script type='text/javascript' src="js/vendor/jquery-ui.min.js"></script>
 <body>

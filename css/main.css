@@ -387,11 +387,11 @@ text.tip {
 #table-div, #search, #settings-div{
     height: 100px;
 }
-.input-group, .visib-filter {
+
+.input-group{
     position: relative;
-    margin: 0 auto;
-    margin-top: 30px;
-    margin-right: 40px;
+    width: 600px;
+    margin: 20px auto;
 }
 
 #controls{
@@ -631,7 +631,6 @@ ul.controls-list li:hover{
     width: 40px;
     height: 5px;
     border: 1px solid #ebebeb;
-    margin-top: 5px;
 }
 
 tr td.legend-lbl{
@@ -640,16 +639,7 @@ tr td.legend-lbl{
     font-size: 12px;
 }
 
-.focus{
-    background-color: #3c10bd;
-}
-.level-one{
-    background-color: #bcbd22;
-}
 
-.level-two{
-background-color: #4d6cbd;
-}
 
 .legend-tbl{
 width: 140px;
@@ -661,6 +651,7 @@ width: 140px;
 .borderless tbody td {
     border: none;
 }
+
 
 #legend-outer{
     position: relative;
@@ -694,21 +685,10 @@ width: 140px;
 }
 
 #visib-list{
-    position: absolute;
-    list-style-type: none;
-    right: 0;
-}
-
-#visib-list li {
-    float: left;
 }
 
 .nav {
-    left:50%;
-    margin-left:-150px;
-    top:0px;
-    height: 50px;
-    position:absolute;
+
 }
 .nav>li>a:hover, .nav>li>a:focus, .nav .open>a, .nav .open>a:hover, .nav .open>a:focus {
     background:#fff;
@@ -753,4 +733,58 @@ width: 140px;
     top: -12px;
     right: 14px;
     z-index: 9;
+}
+
+#settings-panel, #legend-panel{
+    position: absolute;
+    z-index: 1000;
+    right: 50px;
+    top: 300px;
+    width: 200px;
+}
+
+#legend-panel {
+    top: 120px;
+}
+
+#legend-panel .panel-heading {
+    background-color: #ffffff;
+    border: 1px solid #efefef;
+ }
+
+#settings-panel .panel-heading {
+    cursor: move;
+    background-color: #ebebeb;
+    border: 1px solid #efefef;
+    height: 50px;
+    position:absolute;
+}
+
+div.legend-ul{
+    position: relative;
+    margin: 0;
+    width: 200px;
+}
+div.focus, div.level-one, div.level-two {
+    color: white;
+}
+div.focus{
+    background-color: #3c10bd;
+}
+div.level-one{
+    background-color: #bcbd22;
+}
+
+div.level-two{
+    background-color: #4d6cbd;
+}
+div.legend-color-box{
+    display: block;
+    width: 198px;
+    height: auto;
+    padding: 4px;
+}
+
+div.legend-color-box:hover{
+    cursor: pointer;
 }
