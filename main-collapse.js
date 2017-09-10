@@ -56,6 +56,8 @@ var force = d3.layout.force()
         //class to make it responsive
         .classed("svg-content-responsive", true),
     pattern_def = svg.append("defs"),
+    allLinks =[],
+    allNodes =[],
 
     link = svg.selectAll(".links"),
     node = svg.selectAll(".nodes"),
@@ -83,67 +85,141 @@ labelsCheckbox.on('click', function () {
 
 });
 
-d3.json("trump.json", function (error, json) { //splc_kkk_depth.json
+d3.json("bad.json", function (error, json) { //splc_kkk_depth.json
     if (error) throw error;
 
-    var tree = buildTree(json, 4);
-    root = json;
-    initRoot(root);
-    saveLocal("root", root);
-    root.nodes = filterNodes(root.nodes, 1);
-    root.links = filterLinks(root.links, 1);
-    var current = {nodes: root.nodes, links: root.links};
-    saveLocal('current', current);
-    updateNodeOptionsArray(current);
-    update(current);
+    var groupedLinks = groupByLinks(json.results[0]);
+
+    var mappedGroups = mapGroups(groupedLinks);
+    saveParentChildrenAssociations(mappedGroups);
+    allLinks = json.results[0].links;
+    allNodes = json.results[0].nodes;
+
+
+    var filtered = getParentLinksAndNodes(mappedGroups, json.results[0].nodes);
+    saveLocal('parent-links', filtered.parentLinks);
+    saveLocal('parent-nodes', filtered.parentNodes);
+
+
+    // var tree = buildTree(json.results[0], 1);
+    // var filteredNodes = filterNodes(tree, 1);
+    //root = json;
+    //initRoot(root);
+    //saveLocal("root", filteredNodes);
+   // root.nodes = filterNodes(root.nodes, 1);
+   // root.links = filterLinks(root.links, 1);
+    //var current = {nodes: tree, links: root.links};
+    //saveLocal('current', current);
+    //updateNodeOptionsArray(filteredNodes);
+
+    update(filtered);
 });
 
-function Branch(depth, data, children){
-    this.depth = depth;
-    this.nodes = data.nodes;
-    this.links = data.links;
-    this.children = children || []
+function saveParentChildrenAssociations (groups) {
+    var results = {};
+    //localStorage.clear();
+
+    for(var i=0; i < groups.length; i++){
+        var current = groups[i],
+            key = current[0].source,
+        associates = [];
+        for(var x=0; x < current.length; x++){
+           var target = current[x].target,
+                edgeId = current[x].edgeID;
+            associates.push({edgeId : edgeId, target: target});
+        }
+        saveLocal(key, associates);
+    }
+    // for(key in groups){
+    //     if(!results[key]){
+    //         results[key] = [];
+    //     }
+    //     results[key].push(groups[key]);
+    // }
+
+}
+
+function mapGroups (groups) {
+    return _.map(groups)
+}
+
+function Node (id, name, level, links, children) { // a branch node is a node at a particular level
+    this.links = links;
+    this.level = level;
+    this.id = id;
+    this.name = name;
+    this.children = children || [];
+    this._children = [];
+    this.collapse = function collapse () {
+        this._children = this.children;
+        this.children = [];
+    };
+    this.expand = function expand() {
+        this.children = this._children;
+        this._children = [];
+    }
+}
+
+function groupByLinks(data){
+
+    var links = data.links;
+    var groups = _.groupBy(links, "source");
+    return groups;
+}
+
+function getParentLinksAndNodes (links, nodes) {
+
+    var parentLinks = [],
+        parentNodes = [];
+
+    links.forEach(function (l) {
+        if(l.length > 1){
+            parentLinks.push(l);
+            var node = nodes.filter(function (n) {
+               return n.id === l[0].source;
+            })
+            parentNodes.push(node);
+        }
+    })
+    return {
+    links: parentLinks,
+    nodes: parentNodes
+    }
 }
 
 function buildTree(data, depth){
-    var parentLevel = depth -1;
-
-    if(parentLevel <= 0){
-        //root
-    }
-    var branchdata ,
-        branch = [] ,
-        lastChild = undefined;
+    var branches = {};
 
     for(var i = 0; i < depth ; i++){
-        branchdata = {};
-         branchdata.nodes = data.nodes.filter(function (node) {
-            return node.level === i + 1;
+        var level = i+1;
+        var branchNodes = [];
+
+        var currentLevelNodes = data.nodes.filter(function (t) {
+            return t.level === level;
         })
-         branchdata.links = data.links.filter(function (link) {
-            return link.level === i + 1;
+        var currentLevelLinks = data.links.filter(function (l) {
+            return l.level === level;
         })
-
-        var  branch = new Branch(i+1,branchdata, []);
-
-        if(lastChild)
-         lastChild.children = branch;
-
-        if(i < depth -1)
-        lastChild = branch;
-
+        currentLevelNodes.forEach(function (n) {
+           var links = getLinksForNode(n,level, currentLevelLinks),
+           children = getChildren(n,links, currentLevelNodes);
+           branchNode = new Node(n.id, n.name, level, links, children);
+           branchNodes.push(branchNode);
+       })
+        branches[i] = branchNodes;
     }
 
-    //todo - every time children are requested they are found by level then removed from level and saved on the node
-    //todo - to find children first check node directly then level
-    //todo - display one level at a time plus the focus from the parent level with the other nodes faded and the selected node emphasised
+    return branches;
+}
 
-    //todo use flatten method to get all nodes at that level if not at the node and then filter
-    //todo - if chikdren received directly from node no need to filter !!!
-    //todo - eveytime the children are received savelocal gets called to save existing data.
-    //todo - network call is made secondary to localstorage.. it gets called but just after with a hash of local storage to test diff
-    //todo use the d3.nest feature to group nodes together maybe will help with finding children ????
-    return lastChild;
+function getLinksForNode (node, level, allLinks) {
+    var results = [];
+    allLinks.forEach(function (l) {
+        if(l.level === level && (l.source === node.id || l.target === node.id)){
+            results.push(l);
+        }
+    })
+    return results;
 }
 
 function toggleLabels(on) {
@@ -179,9 +255,8 @@ function toggleLinks(on) {
 }
 
 function filterNodes(nodes, level) {
-    return nodes.filter(function (n) {
-        return n.level === level;
-    });
+    var key = level -1 >= 0 ? level -1 : 1;
+    return nodes[key];
 }
 
 function filterLinks(links, level) {
@@ -193,7 +268,6 @@ function filterLinks(links, level) {
 });
 }
 
-
 function initRoot(r) {
     r.nodes.forEach(function (item, index) {
         item.collapsed = true;
@@ -203,24 +277,18 @@ function initRoot(r) {
     });
 }
 
-
 function getChildren(node, links, nodes) {
-    var childNodes = [],
-        childLinks = [];
+    var childNodes = [];
 
     links.forEach(function (link) {
         for (var i = 0; i < nodes.length; i++) {
             var currentNode = nodes[i];
-            if (currentNode.id === link.sourceStr && link.targetStr === node.id) {
+            if (currentNode.id === link.source && link.target === node.id) {
                 childNodes.push(currentNode);
-                childLinks.push(link);
             }
         }
     });
-    return {
-        nodes: childNodes,
-        links: childLinks
-    };
+    return childNodes;
 }
 
 function showInfoPopup(d) {
@@ -228,7 +296,7 @@ function showInfoPopup(d) {
         .duration(200)
         .attr("class", "info")
         .style("opacity", 1);
-    popupInfoDiv.html("[level " + d.level + "] " + d.name)
+    popupInfoDiv.html("[" + d.id + "] " + d.name )
         .style("left", d.x + "px")
         .style("top", d.y + "px");
 }
@@ -241,35 +309,42 @@ function hideInfoPopup(when, delayTime) {
 }
 
 function update(data) {
-    var nodes = data.nodes;
-    var l = data.links;//d3.layout.tree().links(nodes); //root.children[0].links;
+    var nodes = data.nodes; // data.nodes;
+    var links = data.links;//d3.layout.tree().links(nodes); //root.children[0].links;
 
     var edges = [];
     nodes.forEach(function (n) {
         n.collapsed = false;
+       // links.push(n.links);
     });
 
-    var bad = [];
-    l.forEach(function (e) {
+    nodes = $.map(nodes, function (node) {
+        return node;
+    })
+
+     links = $.map(links, function(link){
+        if(link !== null || link !== undefined || typeof(link) !== "undefined")
+        return link;
+    });
+
+    links.forEach(function (e) {
         var sourceNode = nodes.filter(function (n) {
-            if(!e.sourceStr || e.sourceStr === undefined)
-                bad.push(e);
-                return n.id === e.sourceStr;
+                return n.id === e.source;
             })[0],
             targetNode = nodes.filter(function (n) {
-                if(!e.targetStr || e.targetStr === undefined)
-                    bad.push(e);
-                return n.id === e.targetStr;
+                return n.id === e.target;
             })[0];
 
+            if(sourceNode && targetNode)
         edges.push({
             collapsed: false,
             source: sourceNode,
             target: targetNode,
             value: e.value,
             level: e.level,
-            id: e.id,
-            name: e.name
+            id: e.edgeID,
+            name: e.name,
+            weight: 1
         });
     });
 
@@ -485,8 +560,8 @@ $(document).ready(function (e) {
 
 function updateNodeOptionsArray(graph) {
     optArray = [];
-    for (var i = 0; i < graph.nodes.length - 1; i++) {
-        var entry = graph.nodes[i].name;
+    for (var i = 0; i < graph.length - 1; i++) {
+        var entry = graph[i].name;
         //if(optArray.indexOf(entry) === -1)
         optArray.push(entry.toLowerCase());
     }
@@ -730,7 +805,7 @@ function handleCollapse(n) {
         currentLinks = local.links;
 
     currentLinks = currentLinks.filter(function (cn) {
-        return cn.sourceStr !== n.id || cn.targetStr !== n.id;
+        return cn.source !== n.id || cn.target !== n.id;
     });
 
     //get the child nodes for the selected node
@@ -761,39 +836,29 @@ function handleCollapse(n) {
 function handleExpand(n) {
     var sourceId = n.id,
         level = n.level + 1;
-    var local = getLocal('root'),
-        current = getLocal('current'),
-        currentClone = jQuery.extend(true, {}, current);
-    newLinks = filterLinks(local.links, level),
-        newNodes = filterNodes(local.nodes, level);
+    var current = getLocal(sourceId),
+    links =[],
+    nodes =[];
 
-    newLinks = newLinks.filter(function (l) {
-        return l.sourceStr === sourceId || l.targetStr === sourceId;
-    });
-
-    var extraNodes = [];
-    newLinks.forEach(function (l) {
-        for (var i = 0; i < newNodes.length; i++) {
-            var currentNode = newNodes[i];
-            if (currentNode.id === l.sourceStr || currentNode.id === l.targetStr) {
-                extraNodes.push(currentNode);
+    current.forEach(function (c) {
+        for(var i=0; i < allLinks.length; i ++){
+            if(allLinks[i].edgeID === c.edgeId){
+                links.push(allLinks[i]);
             }
+        }
+
+        for(var x=0; x < allNodes.length; x ++){
+         if(allNodes[x].id === c.target){
+             nodes.push(allNodes[x]);
+           }
         }
     });
 
-    newLinks.forEach(function (l) {
-        current.links.push(l);
-    });
-    extraNodes.forEach(function (n) {
-        current.nodes.push(n);
-    });
-
-    if (objectsAreTheSame(current, currentClone))
-        return false;
-
-    saveLocal('current', current);
-    updateNodeOptionsArray(current);
-    update(current);
+    var results = {
+        links : links,
+        nodes: nodes
+    }
+    update(results);
 }
 
 function objectsAreTheSame(obj1, obj2) {
@@ -801,7 +866,7 @@ function objectsAreTheSame(obj1, obj2) {
 }
 
 function tick(e) {
-        var maxAlpha = node[0].length > 2000 && link[0].length > 2000 ? 0.1 : 0.05;
+         var maxAlpha = node[0].length > 2000 && link[0].length > 2000 ? 0.1 : 0.05;
     if (linksOn){
         if (e.alpha > maxAlpha ) {
             link.attr("x1", function (d) {
